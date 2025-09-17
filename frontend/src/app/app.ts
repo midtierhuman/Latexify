@@ -1,7 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +10,11 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.scss',
 })
 export class App {
+  constructor(private cdr: ChangeDetectorRef, private router: Router) {}
   protected readonly title = signal('Latexify');
   value: string = 'value';
+  routeTo(url: string) {
+    this.router.navigate([url]);
+    this.cdr.detectChanges();
+  }
 }
