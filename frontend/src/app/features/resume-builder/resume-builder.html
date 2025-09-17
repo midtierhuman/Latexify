@@ -35,14 +35,11 @@
         <input placeholder="College" formControlName="college" />
         <input placeholder="Duration" formControlName="duration" />
         <input placeholder="CGPA" formControlName="cgpa" />
-        <button
-          type="button"
-          (click)="removeEducation(i)"
-          *ngIf="education.length > 1"
-          style="background: #fc5c7d"
-        >
+        @if (education.length > 1) {
+        <button type="button" (click)="removeEducation(i)" style="background: #fc5c7d">
           Delete
         </button>
+        }
       </div>
       }
     </div>
@@ -65,25 +62,23 @@
           @for (detail of getExperienceDetails(i).controls; track $index; let j = $index) {
           <div style="display: flex; gap: 8px; align-items: center">
             <input [formControlName]="j" placeholder="Detail" />
+            @if (getExperienceDetails(i).length > 1) {
             <button
               type="button"
               (click)="removeExperienceDetail(i, j)"
-              *ngIf="getExperienceDetails(i).length > 1"
-              style="background: #fc5c7d; padding: 4px 12px"
+              style="background: #fc5c7d"
             >
               Delete
             </button>
+            }
           </div>
           }
         </div>
-        <button
-          type="button"
-          (click)="removeExperience(i)"
-          *ngIf="experience.length > 1"
-          style="background: #fc5c7d"
-        >
+        @if(experience.length > 1) {
+        <button type="button" (click)="removeExperience(i)" style="background: #fc5c7d">
           Delete
         </button>
+        }
       </div>
       }
     </div>
@@ -104,25 +99,21 @@
           @for (desc of getProjectDescriptions(i).controls; track $index; let j = $index) {
           <div style="display: flex; gap: 8px; align-items: center">
             <input [formControlName]="j" placeholder="Description" />
+            @if (getProjectDescriptions(i).length > 1) {
             <button
               type="button"
               (click)="removeProjectDetail(i, j)"
-              *ngIf="getProjectDescriptions(i).length > 1"
               style="background: #fc5c7d; padding: 4px 12px"
             >
               Delete
             </button>
+            }
           </div>
           }
         </div>
-        <button
-          type="button"
-          (click)="removeProject(i)"
-          *ngIf="projects.length > 1"
-          style="background: #fc5c7d"
-        >
-          Delete
-        </button>
+        @if(projects.length > 1) {
+        <button type="button" (click)="removeProject(i)" style="background: #fc5c7d">Delete</button>
+        }
       </div>
       }
     </div>
@@ -136,14 +127,9 @@
       @for (s of skills.controls; track $index; let i = $index) {
       <div style="display: flex; gap: 8px; align-items: center">
         <input [formControlName]="i" placeholder="Skill" />
-        <button
-          type="button"
-          (click)="removeSkill(i)"
-          *ngIf="skills.length > 1"
-          style="background: #fc5c7d; padding: 4px 12px"
-        >
-          Delete
-        </button>
+        @if(skills.length > 1) {
+        <button type="button" (click)="removeSkill(i)" style="background: #fc5c7d">Delete</button>
+        }
       </div>
       }
     </div>
@@ -157,14 +143,11 @@
       @for (c of certifications.controls; track $index; let i = $index) {
       <div style="display: flex; gap: 8px; align-items: center">
         <input [formControlName]="i" placeholder="Certification" />
-        <button
-          type="button"
-          (click)="removeCertification(i)"
-          *ngIf="certifications.length > 1"
-          style="background: #fc5c7d; padding: 4px 12px"
-        >
+        @if(certifications.length > 1) {
+        <button type="button" (click)="removeCertification(i)" style="background: #fc5c7d">
           Delete
         </button>
+        }
       </div>
       }
     </div>

@@ -1,0 +1,18 @@
+<div class="upload-container">
+  <h2>Upload Your Resume (PDF)</h2>
+  <input
+    type="file"
+    accept="application/pdf"
+    (change)="onFileSelected($event)"
+    [disabled]="uploading || fileUploaded"
+  />
+  @if (uploading) {
+  <div class="upload-status">Uploading...</div>
+  } @if (fileUploaded) {
+  <div class="upload-success">
+    <mat-icon color="primary">check_circle</mat-icon>
+    PDF uploaded successfully!
+  </div>
+  }
+  <button mat-raised-button color="primary" *ngIf="fileUploaded" (click)="onStart()">Start</button>
+</div>
