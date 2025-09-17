@@ -13,6 +13,5 @@
     <mat-icon color="primary">check_circle</mat-icon>
     PDF uploaded successfully!
   </div>
-  }
-  <button mat-raised-button color="primary" *ngIf="fileUploaded" (click)="onStart()">Start</button>
+  } @if(fileUploaded){<button mat-raised-button color="primary" (click)="onStart()">Start</button>}
 </div>
