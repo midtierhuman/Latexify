@@ -1,0 +1,178 @@
+<div class="container">
+  <h2>ATS Resume Builder</h2>
+  <form [formGroup]="resumeForm">
+    <!-- Basic Info -->
+    <div>
+      <label>Name:</label>
+      <input formControlName="name" />
+    </div>
+    <div>
+      <label>Phone:</label>
+      <input formControlName="phone" />
+    </div>
+    <div>
+      <label>Email:</label>
+      <input formControlName="email" />
+    </div>
+    <div>
+      <label>LinkedIn:</label>
+      <input formControlName="linkedin" />
+    </div>
+    <div>
+      <label>GitHub:</label>
+      <input formControlName="github" />
+    </div>
+
+    <hr />
+
+    <!-- Education -->
+    <h3>Education</h3>
+    <button type="button" (click)="addEducation()">+ Add Education</button>
+    <div formArrayName="education">
+      @for (edu of education.controls; track $index; let i = $index) {
+      <div [formGroupName]="i">
+        <input placeholder="Degree" formControlName="degree" />
+        <input placeholder="College" formControlName="college" />
+        <input placeholder="Duration" formControlName="duration" />
+        <input placeholder="CGPA" formControlName="cgpa" />
+        <button
+          type="button"
+          (click)="removeEducation(i)"
+          *ngIf="education.length > 1"
+          style="background: #fc5c7d"
+        >
+          Delete
+        </button>
+      </div>
+      }
+    </div>
+
+    <hr />
+
+    <!-- Experience -->
+    <h3>Experience</h3>
+    <button type="button" (click)="addExperience()">+ Add Experience</button>
+    <div formArrayName="experience">
+      @for (exp of experience.controls; track $index; let i = $index) {
+      <div [formGroupName]="i">
+        <input placeholder="Title" formControlName="title" />
+        <input placeholder="Company" formControlName="company" />
+        <input placeholder="Duration" formControlName="duration" />
+
+        <div formArrayName="details">
+          <h4>Details</h4>
+          <button type="button" (click)="addExperienceDetail(i)">+ Add Detail</button>
+          @for (detail of getExperienceDetails(i).controls; track $index; let j = $index) {
+          <div style="display: flex; gap: 8px; align-items: center">
+            <input [formControlName]="j" placeholder="Detail" />
+            <button
+              type="button"
+              (click)="removeExperienceDetail(i, j)"
+              *ngIf="getExperienceDetails(i).length > 1"
+              style="background: #fc5c7d; padding: 4px 12px"
+            >
+              Delete
+            </button>
+          </div>
+          }
+        </div>
+        <button
+          type="button"
+          (click)="removeExperience(i)"
+          *ngIf="experience.length > 1"
+          style="background: #fc5c7d"
+        >
+          Delete
+        </button>
+      </div>
+      }
+    </div>
+
+    <hr />
+
+    <!-- Projects -->
+    <h3>Projects</h3>
+    <button type="button" (click)="addProject()">+ Add Project</button>
+    <div formArrayName="projects">
+      @for (proj of projects.controls; track $index; let i = $index) {
+      <div [formGroupName]="i">
+        <input placeholder="Project Title" formControlName="title" />
+
+        <div formArrayName="description">
+          <h4>Description</h4>
+          <button type="button" (click)="addProjectDetail(i)">+ Add Description</button>
+          @for (desc of getProjectDescriptions(i).controls; track $index; let j = $index) {
+          <div style="display: flex; gap: 8px; align-items: center">
+            <input [formControlName]="j" placeholder="Description" />
+            <button
+              type="button"
+              (click)="removeProjectDetail(i, j)"
+              *ngIf="getProjectDescriptions(i).length > 1"
+              style="background: #fc5c7d; padding: 4px 12px"
+            >
+              Delete
+            </button>
+          </div>
+          }
+        </div>
+        <button
+          type="button"
+          (click)="removeProject(i)"
+          *ngIf="projects.length > 1"
+          style="background: #fc5c7d"
+        >
+          Delete
+        </button>
+      </div>
+      }
+    </div>
+
+    <hr />
+
+    <!-- Skills -->
+    <h3>Skills</h3>
+    <button type="button" (click)="addSkill()">+ Add Skill</button>
+    <div formArrayName="skills">
+      @for (s of skills.controls; track $index; let i = $index) {
+      <div style="display: flex; gap: 8px; align-items: center">
+        <input [formControlName]="i" placeholder="Skill" />
+        <button
+          type="button"
+          (click)="removeSkill(i)"
+          *ngIf="skills.length > 1"
+          style="background: #fc5c7d; padding: 4px 12px"
+        >
+          Delete
+        </button>
+      </div>
+      }
+    </div>
+
+    <hr />
+
+    <!-- Certifications -->
+    <h3>Certifications</h3>
+    <button type="button" (click)="addCertification()">+ Add Certification</button>
+    <div formArrayName="certifications">
+      @for (c of certifications.controls; track $index; let i = $index) {
+      <div style="display: flex; gap: 8px; align-items: center">
+        <input [formControlName]="i" placeholder="Certification" />
+        <button
+          type="button"
+          (click)="removeCertification(i)"
+          *ngIf="certifications.length > 1"
+          style="background: #fc5c7d; padding: 4px 12px"
+        >
+          Delete
+        </button>
+      </div>
+      }
+    </div>
+
+    <hr />
+
+    <button type="button" (click)="downloadResume()">Download Resume</button>
+  </form>
+</div>
+<!-- Add a spacer div after the container to ensure footer doesn't overlap -->
+<div style="height: 80px"></div>

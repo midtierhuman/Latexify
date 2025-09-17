@@ -1,0 +1,18 @@
+<mat-toolbar color="primary" class="app-header">
+  <span class="app-title">{{ title() }}</span>
+  <span class="spacer"></span>
+  <button mat-button routerLink="/resume-builder">Resume Builder</button>
+  <button mat-button>About</button>
+  <button mat-icon-button aria-label="GitHub">
+    <mat-icon>code</mat-icon>
+  </button>
+</mat-toolbar>
+
+<router-outlet></router-outlet>
+
+<mat-toolbar color="accent" class="app-footer" fxLayoutAlign="center center">
+  <span
+    >© 2025 Latexify &nbsp;|&nbsp;
+    <a href="https://github.com/your-repo" target="_blank">GitHub</a></span
+  >
+</mat-toolbar>
