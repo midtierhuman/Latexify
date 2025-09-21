@@ -4,14 +4,17 @@
     type="file"
     accept="application/pdf"
     (change)="onFileSelected($event)"
-    [disabled]="uploading || fileUploaded"
+    [disabled]="uploading() || fileUploaded()"
   />
-  @if (uploading) {
+
+  @if (uploading()) {
   <div class="upload-status">Uploading...</div>
-  } @if (fileUploaded) {
+  } @if (fileUploaded()) {
   <div class="upload-success">
     <mat-icon color="primary">check_circle</mat-icon>
     PDF uploaded successfully!
   </div>
-  } @if(fileUploaded){<button mat-raised-button color="primary" (click)="onStart()">Start</button>}
+  } @if (fileUploaded()) {
+  <button mat-raised-button color="primary" (click)="onStart()">Start</button>
+  }
 </div>

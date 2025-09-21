@@ -15,6 +15,5 @@ export class App {
   value: string = 'value';
   routeTo(url: string) {
     this.router.navigate([url]);
-    this.cdr.detectChanges();
   }
 }
