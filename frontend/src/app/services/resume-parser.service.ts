@@ -14,8 +14,8 @@ export class ResumeParserService {
     const formData = new FormData();
     formData.append('file', file);
 
-    // Adjust the URL if your backend runs on a different port or host
-    const url = 'http://127.0.0.1:8000/parse-resume';
+    // Backend (FastAPI) must be running on this port (e.g. uvicorn main:app --port 8001)
+    const url = 'http://127.0.0.1:8001/parse-resume';
 
     return await firstValueFrom(this.http.post<ResumeData>(url, formData));
   }

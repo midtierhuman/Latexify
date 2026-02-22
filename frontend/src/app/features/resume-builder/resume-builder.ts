@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ResumeService } from '../../services/resume.service';
 import { ResumeData } from '../../models/resume.model';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-resume-builder',
@@ -14,7 +14,11 @@ import { CommonModule } from '@angular/common';
 export class ResumeBuilder {
   resumeForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private resumeService: ResumeService) {
+  constructor(
+    private fb: FormBuilder,
+    private resumeService: ResumeService,
+    @Inject(PLATFORM_ID) private platformId: object,
+  ) {
     this.resumeForm = this.fb.group({
       name: ['', Validators.required],
       phone: ['', Validators.required],
@@ -29,7 +33,10 @@ export class ResumeBuilder {
     });
   }
   ngOnInit() {
-    const data = history.state?.data as ResumeData | undefined;
+    const data =
+      isPlatformBrowser(this.platformId) && history?.state?.data
+        ? (history.state.data as ResumeData)
+        : undefined;
 
     if (data) {
       this.loadFromData(data);
@@ -62,6 +69,7 @@ export class ResumeBuilder {
         this.fb.group({
           degree: [e?.degree ?? ''],
           college: [e?.college ?? ''],
+          location: [(e as { location?: string })?.location ?? ''],
           duration: [e?.duration ?? ''],
           cgpa: [e?.cgpa ?? ''],
         })
@@ -80,6 +88,7 @@ export class ResumeBuilder {
         this.fb.group({
           title: [exp?.title ?? ''],
           company: [exp?.company ?? ''],
+          location: [(exp as { location?: string })?.location ?? ''],
           duration: [exp?.duration ?? ''],
           details,
         })
@@ -100,6 +109,8 @@ export class ResumeBuilder {
       this.projects.push(
         this.fb.group({
           title: [p?.title ?? ''],
+          year: [(p as { year?: string })?.year ?? ''],
+          tech: [(p as { tech?: string })?.tech ?? ''],
           description,
         })
       );
@@ -152,6 +163,7 @@ export class ResumeBuilder {
       this.fb.group({
         degree: [''],
         college: [''],
+        location: [''],
         duration: [''],
         cgpa: [''],
       })
@@ -163,6 +175,7 @@ export class ResumeBuilder {
       this.fb.group({
         title: [''],
         company: [''],
+        location: [''],
         duration: [''],
         details: this.fb.array([]),
       })
@@ -177,6 +190,8 @@ export class ResumeBuilder {
     this.projects.push(
       this.fb.group({
         title: [''],
+        year: [''],
+        tech: [''],
         description: this.fb.array([]),
       })
     );
@@ -223,7 +238,12 @@ export class ResumeBuilder {
   }
 
   downloadResume() {
-    const data: ResumeData = this.resumeForm.value;
+    const data = this.resumeForm.value as ResumeData;
     this.resumeService.generateResume(data);
+  }
+
+  downloadLatex() {
+    const data = this.resumeForm.value as ResumeData;
+    this.resumeService.downloadLatex(data);
   }
 }

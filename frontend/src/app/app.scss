@@ -29,11 +29,14 @@
 .app-footer {
   position: fixed;
   bottom: 0;
-  width: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 0.98rem;
   background: rgba(130, 94, 228, 0.85);
   color: #fff;
-  text-align: center;
   padding: 0.4rem 0;
   min-height: 36px;
   box-shadow: 0 -2px 12px rgba(130, 94, 228, 0.08);
