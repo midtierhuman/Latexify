@@ -31,13 +31,25 @@ export class UploadResume {
     }
 
     this.uploading.set(true);
+    this.fileUploaded.set(false);
     try {
-      this.resumeData.set(await this.resumeParserService.parseResumeFromFile(file));
-      console.log('Parsed resume data:', this.resumeData());
+      const data = await this.resumeParserService.parseResumeFromFile(file);
+      if (data.name.startsWith('Error:')) {
+        alert('The PDF could not be parsed. Try a different file or add your details manually in the builder.');
+        return;
+      }
+      this.resumeData.set(data);
       this.fileUploaded.set(true);
-    } catch (error) {
-      console.error('Error parsing resume:', error);
-      alert('Failed to parse resume. Please try again later.');
+    } catch (error: unknown) {
+      const err = error as { error?: { detail?: string }; status?: number };
+      const detail = err?.error?.detail;
+      const message =
+        typeof detail === 'string'
+          ? detail
+          : err?.status === 0
+            ? 'Cannot reach the backend. Start it with: uvicorn main:app --port 8001'
+            : 'Failed to parse resume. Try a different PDF or add details manually in the builder.';
+      alert(message);
     } finally {
       this.uploading.set(false);
     }

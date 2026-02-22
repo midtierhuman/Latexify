@@ -16,7 +16,9 @@ function escapeLatex(s: string): string {
 }
 
 const LATEX_PREAMBLE = `%-------------------------
-% Resume in Latex - Latexify
+% Resume in Latex - Latexify (Jake's FAANG-style template)
+% Based on: https://github.com/sb2nov/resume
+% License : MIT
 %------------------------
 
 \\documentclass[letterpaper,11pt]{article}
@@ -34,6 +36,16 @@ const LATEX_PREAMBLE = `%-------------------------
 \\usepackage{tabularx}
 \\input{glyphtounicode}
 
+%----------FONT OPTIONS----------
+% sans-serif
+% \\usepackage[sfdefault]{FiraSans}
+% \\usepackage[sfdefault]{roboto}
+% \\usepackage[sfdefault]{noto-sans}
+% \\usepackage[default]{sourcesanspro}
+% serif
+% \\usepackage{CormorantGaramond}
+% \\usepackage{charter}
+
 \\pagestyle{fancy}
 \\fancyhf{}
 \\fancyfoot{}
@@ -50,16 +62,29 @@ const LATEX_PREAMBLE = `%-------------------------
 \\raggedbottom
 \\raggedright
 \\setlength{\\tabcolsep}{0in}
+
+\\titleformat{\\section}{
+  \\vspace{-4pt}\\scshape\\raggedright\\large
+}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]}
+
 \\pdfgentounicode=1
 
-\\titleformat{\\section}{\\vspace{-4pt}\\scshape\\raggedright\\large}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]}
-
-\\newcommand{\\resumeItem}[1]{\\item\\small{{#1 \\vspace{-2pt}}}}
+\\newcommand{\\resumeItem}[1]{
+  \\item\\small{
+    {#1 \\vspace{-2pt}}
+  }
+}
 \\newcommand{\\resumeSubheading}[4]{
   \\vspace{-2pt}\\item
   \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
     \\textbf{#1} & #2 \\\\
     \\textit{\\small#3} & \\textit{\\small #4} \\\\
+  \\end{tabular*}\\vspace{-7pt}
+}
+\\newcommand{\\resumeSubSubheading}[2]{
+  \\item
+  \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+    \\textit{\\small#1} & \\textit{\\small #2} \\\\
   \\end{tabular*}\\vspace{-7pt}
 }
 \\newcommand{\\resumeProjectHeading}[2]{
@@ -68,10 +93,12 @@ const LATEX_PREAMBLE = `%-------------------------
     \\small#1 & #2 \\\\
   \\end{tabular*}\\vspace{-7pt}
 }
-\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
+\\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
+\\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
 \\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
 \\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
+\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
+\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
 
 \\begin{document}
 `;
@@ -92,35 +119,37 @@ export class ResumeService {
           bolditalics: 'Roboto-MediumItalic.ttf',
         },
       },
-      content: [
-        {
-          text: data.name,
-          style: 'nameHeader',
-          alignment: 'center',
-          margin: [0, 0, 0, 4],
-        },
-        {
-          text: `${data.phone} | ${data.email} | ${data.linkedin} | ${data.github}`,
-          style: 'contactInfo',
-          alignment: 'center',
-          margin: [0, 0, 0, 16],
-        },
-        { text: 'Education', style: 'sectionHeader' },
-        this.createSectionLine(),
-        ...this.formatEducation(data.education),
-        { text: 'Experience', style: 'sectionHeader', margin: [0, 12, 0, 4] },
-        this.createSectionLine(),
-        ...this.formatExperience(data.experience),
-        { text: 'Projects', style: 'sectionHeader', margin: [0, 12, 0, 4] },
-        this.createSectionLine(),
-        ...this.formatProjects(data.projects),
-        { text: 'Technical Skills', style: 'sectionHeader', margin: [0, 12, 0, 4] },
-        this.createSectionLine(),
-        ...this.formatTechnicalSkills(data.skills),
-        { text: 'Certifications', style: 'sectionHeader', margin: [0, 12, 0, 4] },
-        this.createSectionLine(),
-        ...this.formatCertifications(data.certifications),
-      ],
+      content: (() => {
+        const content: any[] = [
+          { text: data.name, style: 'nameHeader', alignment: 'center', margin: [0, 0, 0, 4] },
+          {
+            text: `${data.phone} | ${data.email} | ${data.linkedin} | ${data.github}`,
+            style: 'contactInfo',
+            alignment: 'center',
+            margin: [0, 0, 0, 16],
+          },
+          { text: 'Education', style: 'sectionHeader' },
+          this.createSectionLine(),
+          ...this.formatEducation(data.education),
+          { text: 'Experience', style: 'sectionHeader', margin: [0, 12, 0, 4] },
+          this.createSectionLine(),
+          ...this.formatExperience(data.experience),
+          { text: 'Projects', style: 'sectionHeader', margin: [0, 12, 0, 4] },
+          this.createSectionLine(),
+          ...this.formatProjects(data.projects),
+          { text: 'Technical Skills', style: 'sectionHeader', margin: [0, 12, 0, 4] },
+          this.createSectionLine(),
+          ...this.formatTechnicalSkillsForPdf(data),
+        ];
+        if ((data.certifications ?? []).length > 0) {
+          content.push(
+            { text: 'Certifications', style: 'sectionHeader', margin: [0, 12, 0, 4] },
+            this.createSectionLine(),
+            ...this.formatCertifications(data.certifications)
+          );
+        }
+        return content;
+      })(),
 
       styles: {
         nameHeader: {
@@ -160,6 +189,11 @@ export class ResumeService {
           fontSize: 9,
           italics: true,
           margin: [0, 0, 0, 3],
+        },
+        subRoleTitle: {
+          fontSize: 9,
+          italics: true,
+          margin: [0, 0, 0, 1],
         },
         bulletPoint: {
           fontSize: 9,
@@ -238,33 +272,36 @@ export class ResumeService {
       .flat();
   }
 
-  private formatExperience(experience: any[]): any[] {
-    return (experience || [])
-      .map((exp) => [
+  private formatExperience(experience: ResumeData['experience']): any[] {
+    const out: any[] = [];
+    for (const exp of experience || []) {
+      out.push(
         {
           columns: [
-            {
-              text: exp.title,
-              style: 'jobTitle',
-              width: '*',
-            },
-            {
-              text: exp.duration,
-              style: 'locationDate',
-              width: 'auto',
-            },
+            { text: exp.title, style: 'jobTitle', width: '*' },
+            { text: exp.duration, style: 'locationDate', width: 'auto' },
           ],
         },
         {
           text: [exp.company, exp.location].filter(Boolean).join(', '),
           style: 'companyInfo',
-        },
-        ...exp.details.map((detail: string) => ({
-          text: `– ${detail}`,
-          style: 'bulletPoint',
-        })),
-      ])
-      .flat();
+        }
+      );
+      out.push(...(exp.details || []).map((d: string) => ({ text: `– ${d}`, style: 'bulletPoint' })));
+      for (const sub of exp.subRoles || []) {
+        out.push(
+          {
+            columns: [
+              { text: sub.title, style: 'subRoleTitle', width: '*' },
+              { text: sub.duration, style: 'locationDate', width: 'auto' },
+            ],
+            margin: [0, 4, 0, 0],
+          }
+        );
+        out.push(...(sub.details || []).map((d: string) => ({ text: `– ${d}`, style: 'bulletPoint', margin: [8, 0, 0, 0] })));
+      }
+    }
+    return out;
   }
 
   private formatProjects(projects: any[]): any[] {
@@ -292,30 +329,18 @@ export class ResumeService {
       .flat();
   }
 
-  private formatTechnicalSkills(skills: any): any[] {
-    if (typeof skills === 'object' && !Array.isArray(skills)) {
-      // If skills is an object with categories
-      return Object.entries(skills)
-        .map(([category, skillList]) => [
-          {
-            text: `${category}:`,
-            style: 'skillCategory',
-          },
-          {
-            text: Array.isArray(skillList) ? skillList.join(', ') : skillList,
-            style: 'skillList',
-          },
-        ])
-        .flat();
-    } else if (Array.isArray(skills)) {
-      // If skills is a simple array
-      return [
-        {
-          text: skills.join(', '),
-          style: 'skillList',
-          margin: [0, 5, 0, 0],
-        },
-      ];
+  /** Jake-style: categories (Languages, Frameworks, etc.) or flat skills */
+  private formatTechnicalSkillsForPdf(data: ResumeData): any[] {
+    const cats = data.skillCategories?.filter((c) => c.category?.trim() && (c.items?.length ?? 0) > 0);
+    if (cats?.length) {
+      return cats.flatMap((c) => [
+        { text: `${c.category}:`, style: 'skillCategory' as const },
+        { text: (c.items || []).join(', '), style: 'skillList' as const },
+      ]);
+    }
+    const flat = (data.skills || []).filter(Boolean);
+    if (flat.length) {
+      return [{ text: flat.join(', '), style: 'skillList' as const, margin: [0, 5, 0, 0] }];
     }
     return [];
   }
@@ -383,13 +408,22 @@ export class ResumeService {
       const title = escapeLatex(x.title);
       const duration = escapeLatex(x.duration);
       const company = escapeLatex(x.company);
-      const loc = escapeLatex((x as { location?: string }).location || '');
+      const loc = escapeLatex(x.location || '');
       exp += `    \\resumeSubheading\n      {${title}}{${duration}}\n      {${company}}{${loc}}\n`;
       exp += `      \\resumeItemListStart\n`;
       for (const d of x.details || []) {
         exp += `        \\resumeItem{${escapeLatex(d)}}\n`;
       }
-      exp += `      \\resumeItemListEnd\n\n`;
+      exp += `      \\resumeItemListEnd\n`;
+      for (const sub of x.subRoles || []) {
+        exp += `    \\resumeSubSubheading\n      {${escapeLatex(sub.title)}}{${escapeLatex(sub.duration)}}\n`;
+        exp += `      \\resumeItemListStart\n`;
+        for (const d of sub.details || []) {
+          exp += `        \\resumeItem{${escapeLatex(d)}}\n`;
+        }
+        exp += `      \\resumeItemListEnd\n`;
+      }
+      exp += `\n`;
     }
     exp += `  \\resumeSubHeadingListEnd
 `;
@@ -414,8 +448,23 @@ export class ResumeService {
     proj += `  \\resumeSubHeadingListEnd
 `;
 
-    const skillsList = (data.skills || []).filter(Boolean).map((s) => escapeLatex(s)).join(', ');
-    const skills = `%-----------TECHNICAL SKILLS-----------
+    const cats = (data.skillCategories || []).filter((c) => c.category?.trim() && (c.items?.length ?? 0) > 0);
+    let skillsBlock: string;
+    if (cats.length) {
+      const lines = cats
+        .map((c) => `     \\textbf{${escapeLatex(c.category)}}{: ${(c.items || []).map((s) => escapeLatex(s)).join(', ')}}`)
+        .join(' \\\\\n');
+      skillsBlock = `%-----------PROGRAMMING SKILLS-----------
+\\section{Technical Skills}
+ \\begin{itemize}[leftmargin=0.15in, label={}]
+    \\small{\\item{
+ ${lines}
+    }}
+ \\end{itemize}
+`;
+    } else {
+      const skillsList = (data.skills || []).filter(Boolean).map((s) => escapeLatex(s)).join(', ');
+      skillsBlock = `%-----------TECHNICAL SKILLS-----------
 \\section{Technical Skills}
  \\begin{itemize}[leftmargin=0.15in, label={}]
     \\small{\\item{
@@ -423,24 +472,27 @@ export class ResumeService {
     }}
  \\end{itemize}
 `;
+    }
 
-    let cert = `%-----------CERTIFICATIONS-----------
+    let certBlock = '';
+    const certs = (data.certifications || []).filter(Boolean);
+    if (certs.length) {
+      certBlock = `%-----------CERTIFICATIONS-----------
 \\section{Certifications}
  \\begin{itemize}[leftmargin=0.15in, label={}]
 `;
-    for (const c of data.certifications || []) {
-      const raw = typeof c === 'string' ? c : String(c);
-      const idx = raw.indexOf(' -- ');
-      const part1 = escapeLatex(idx >= 0 ? raw.slice(0, idx) : raw);
-      const part2 = idx >= 0 ? escapeLatex(raw.slice(idx + 4)) : '';
-      cert += `    \\small{\\item{\n     \\textbf{${part1}}${part2 ? ` -- ${part2}` : ''}\n    }}\n`;
-    }
-    cert += ` \\end{itemize}
+      for (const c of certs) {
+        const raw = typeof c === 'string' ? c : String(c);
+        const idx = raw.indexOf(' -- ');
+        const part1 = escapeLatex(idx >= 0 ? raw.slice(0, idx) : raw);
+        const part2 = idx >= 0 ? escapeLatex(raw.slice(idx + 4)) : '';
+        certBlock += `    \\small{\\item{\n     \\textbf{${part1}}${part2 ? ` -- ${part2}` : ''}\n    }}\n`;
+      }
+      certBlock += ` \\end{itemize}
 
-\\end{document}
 `;
-
-    return LATEX_PREAMBLE + heading + edu + exp + proj + skills + cert;
+    }
+    return LATEX_PREAMBLE + heading + edu + exp + proj + skillsBlock + certBlock + '\\end{document}\n';
   }
 
   /** Trigger download of resume as .tex file (same format as Resume.tex) */

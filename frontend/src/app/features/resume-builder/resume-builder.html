@@ -1,7 +1,7 @@
 <div class="builder">
   <header class="builder-header">
     <h1>Resume Builder</h1>
-    <p class="builder-subtitle">Edit your details and download as PDF or LaTeX (.tex)</p>
+    <p class="builder-subtitle">FAANG-style resume. Edit and download as PDF or LaTeX (.tex)</p>
   </header>
 
   <form [formGroup]="resumeForm" class="builder-form">
@@ -10,11 +10,26 @@
       <h2 class="card-title">Contact</h2>
       <div class="form-grid">
         <label>Name</label>
-        <input formControlName="name" type="text" placeholder="Full name" />
+        <span class="input-wrap">
+          <input formControlName="name" type="text" placeholder="Full name" />
+          @if (resumeForm.get('name')?.invalid && resumeForm.get('name')?.touched) {
+            <span class="field-error">Name is required</span>
+          }
+        </span>
         <label>Phone</label>
-        <input formControlName="phone" type="text" placeholder="+1 234 567 8900" />
+        <span class="input-wrap">
+          <input formControlName="phone" type="text" placeholder="123-456-7890" />
+          @if (resumeForm.get('phone')?.invalid && resumeForm.get('phone')?.touched) {
+            <span class="field-error">Phone is required</span>
+          }
+        </span>
         <label>Email</label>
-        <input formControlName="email" type="email" placeholder="you@example.com" />
+        <span class="input-wrap">
+          <input formControlName="email" type="email" placeholder="you@example.com" />
+          @if (resumeForm.get('email')?.invalid && resumeForm.get('email')?.touched) {
+            <span class="field-error">{{ resumeForm.get('email')?.errors?.['email'] ? 'Enter a valid email' : 'Email is required' }}</span>
+          }
+        </span>
         <label>LinkedIn</label>
         <input formControlName="linkedin" type="text" placeholder="linkedin.com/in/username" />
         <label>GitHub</label>
@@ -32,21 +47,19 @@
         @for (edu of education.controls; track $index; let i = $index) {
           <div [formGroupName]="i" class="card nested">
             <div class="form-grid">
-              <label>Degree</label>
-              <input formControlName="degree" placeholder="e.g. B.Tech CSE" />
-              <label>College</label>
-              <input formControlName="college" placeholder="Institution name" />
+              <label>Institution</label>
+              <input formControlName="college" placeholder="e.g. Southwestern University" />
               <label>Location</label>
               <input formControlName="location" placeholder="City, State" />
+              <label>Degree</label>
+              <input formControlName="degree" placeholder="Bachelor of Arts in Computer Science" />
               <label>Duration</label>
-              <input formControlName="duration" placeholder="Jul 2018 – Jul 2022" />
-              <label>CGPA</label>
+              <input formControlName="duration" placeholder="Aug. 2018 – May 2021" />
+              <label>CGPA (optional)</label>
               <input formControlName="cgpa" placeholder="8.64" />
             </div>
             @if (education.length > 1) {
-              <button type="button" class="btn btn-danger" (click)="removeEducation(i)">
-                Remove
-              </button>
+              <button type="button" class="btn btn-danger" (click)="removeEducation(i)">Remove</button>
             }
           </div>
         }
@@ -57,51 +70,64 @@
     <section class="card">
       <div class="card-head">
         <h2 class="card-title">Experience</h2>
-        <button type="button" class="btn btn-secondary" (click)="addExperience()">+ Add</button>
+        <button type="button" class="btn btn-secondary" (click)="addExperience()">+ Add role</button>
       </div>
       <div formArrayName="experience" class="form-array">
         @for (exp of experience.controls; track $index; let i = $index) {
-          <div [formGroupName]="i" class="card nested">
+          <div [formGroupName]="i" class="card nested experience-block">
             <div class="form-grid">
               <label>Job title</label>
               <input formControlName="title" placeholder="e.g. Software Engineer" />
+              <label>Duration</label>
+              <input formControlName="duration" placeholder="June 2020 – Present" />
               <label>Company</label>
               <input formControlName="company" placeholder="Company name" />
               <label>Location</label>
               <input formControlName="location" placeholder="City, State" />
-              <label>Duration</label>
-              <input formControlName="duration" placeholder="Jul 2025 – Present" />
             </div>
             <div class="details-block">
               <label>Bullet points</label>
-              <button
-                type="button"
-                class="btn btn-sm btn-secondary"
-                (click)="addExperienceDetail(i)"
-              >
-                + Add point
-              </button>
+              <button type="button" class="btn btn-sm btn-secondary" (click)="addExperienceDetail(i)">+ Add point</button>
               <div formArrayName="details" class="detail-rows">
                 @for (detail of getExperienceDetails(i).controls; track $index; let j = $index) {
                   <div class="detail-row">
                     <input [formControlName]="j" placeholder="Achievement or responsibility" />
                     @if (getExperienceDetails(i).length > 1) {
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-danger"
-                        (click)="removeExperienceDetail(i, j)"
-                      >
-                        ×
-                      </button>
+                      <button type="button" class="btn btn-sm btn-danger" (click)="removeExperienceDetail(i, j)">×</button>
                     }
                   </div>
                 }
               </div>
             </div>
+            <!-- Sub-roles (same company, multiple positions) -->
+            <div class="sub-roles-block" formArrayName="subRoles">
+              <label>Additional positions at same company</label>
+              <button type="button" class="btn btn-sm btn-secondary" (click)="addExperienceSubRole(i)">+ Add position</button>
+              @for (sub of getExperienceSubRoles(i).controls; track $index; let si = $index) {
+                <div [formGroupName]="si" class="card nested sub-role">
+                  <div class="form-grid compact">
+                    <label>Title</label>
+                    <input formControlName="title" placeholder="e.g. Software Engineer I" />
+                    <label>Duration</label>
+                    <input formControlName="duration" placeholder="Oct 2014 – Sep 2016" />
+                  </div>
+                  <div class="detail-rows" formArrayName="details">
+                    @for (d of getSubRoleDetails(i, si).controls; track $index; let di = $index) {
+                      <div class="detail-row">
+                        <input [formControlName]="di" placeholder="Bullet point" />
+                        @if (getSubRoleDetails(i, si).length > 1) {
+                          <button type="button" class="btn btn-sm btn-danger" (click)="removeSubRoleDetail(i, si, di)">×</button>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <button type="button" class="btn btn-sm btn-secondary" (click)="addSubRoleDetail(i, si)">+ Add point</button>
+                  <button type="button" class="btn btn-sm btn-danger" (click)="removeExperienceSubRole(i, si)">Remove position</button>
+                </div>
+              }
+            </div>
             @if (experience.length > 1) {
-              <button type="button" class="btn btn-danger" (click)="removeExperience(i)">
-                Remove role
-              </button>
+              <button type="button" class="btn btn-danger" (click)="removeExperience(i)">Remove role</button>
             }
           </div>
         }
@@ -118,60 +144,65 @@
         @for (proj of projects.controls; track $index; let i = $index) {
           <div [formGroupName]="i" class="card nested">
             <div class="form-grid">
-              <label>Project title</label>
-              <input formControlName="title" placeholder="e.g. Code Review Platform" />
-              <label>Year</label>
-              <input formControlName="year" placeholder="2024" />
+              <label>Project name</label>
+              <input formControlName="title" placeholder="e.g. Gitlytics" />
+              <label>Date range</label>
+              <input formControlName="year" placeholder="June 2020 – Present" />
               <label>Tech stack</label>
-              <input formControlName="tech" placeholder=".NET Core, Angular, OpenAI" />
+              <input formControlName="tech" placeholder="Python, Flask, React, PostgreSQL" />
             </div>
             <div class="details-block">
               <label>Description</label>
-              <button type="button" class="btn btn-sm btn-secondary" (click)="addProjectDetail(i)">
-                + Add line
-              </button>
+              <button type="button" class="btn btn-sm btn-secondary" (click)="addProjectDetail(i)">+ Add line</button>
               <div formArrayName="description" class="detail-rows">
                 @for (desc of getProjectDescriptions(i).controls; track $index; let j = $index) {
                   <div class="detail-row">
                     <input [formControlName]="j" placeholder="What you built or achieved" />
                     @if (getProjectDescriptions(i).length > 1) {
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-danger"
-                        (click)="removeProjectDetail(i, j)"
-                      >
-                        ×
-                      </button>
+                      <button type="button" class="btn btn-sm btn-danger" (click)="removeProjectDetail(i, j)">×</button>
                     }
                   </div>
                 }
               </div>
             </div>
             @if (projects.length > 1) {
-              <button type="button" class="btn btn-danger" (click)="removeProject(i)">
-                Remove project
-              </button>
+              <button type="button" class="btn btn-danger" (click)="removeProject(i)">Remove project</button>
             }
           </div>
         }
       </div>
     </section>
 
-    <!-- Skills -->
+    <!-- Technical Skills (Jake-style categories) -->
     <section class="card">
       <div class="card-head">
         <h2 class="card-title">Technical skills</h2>
-        <button type="button" class="btn btn-secondary" (click)="addSkill()">+ Add</button>
+        <button type="button" class="btn btn-secondary" (click)="addSkillCategory()">+ Add category</button>
       </div>
-      <div formArrayName="skills" class="chip-rows">
-        @for (s of skills.controls; track $index; let i = $index) {
-          <div class="chip-row">
-            <input [formControlName]="i" placeholder="e.g. C#, TypeScript" />
-            @if (skills.length > 1) {
-              <button type="button" class="btn btn-sm btn-danger" (click)="removeSkill(i)">
-                ×
-              </button>
-            }
+      <p class="card-hint">Same-name categories are merged. e.g. Languages, Frameworks, Developer Tools, Libraries</p>
+      <div formArrayName="skillCategories" class="form-array">
+        @for (cat of skillCategories.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="card nested skill-cat">
+            <input
+              formControlName="category"
+              class="category-name"
+              placeholder="Category (e.g. Languages)"
+              (blur)="onSkillCategoryNameBlur()"
+            />
+            <div class="skill-chips" formArrayName="items">
+              @for (item of getSkillCategoryItems(i).controls; track $index; let j = $index) {
+                <div class="skill-chip">
+                  <input [formControlName]="j" placeholder="Skill" />
+                  <button type="button" class="chip-delete" (click)="removeSkillCategoryItem(i, j)" title="Remove">×</button>
+                </div>
+              }
+            </div>
+            <div class="cat-actions">
+              <button type="button" class="btn btn-sm btn-secondary" (click)="addSkillCategoryItem(i)">+ Add item</button>
+              @if (skillCategories.length > 1) {
+                <button type="button" class="btn btn-sm btn-danger" (click)="removeSkillCategory(i)">Remove category</button>
+              }
+            </div>
           </div>
         }
       </div>
@@ -180,31 +211,32 @@
     <!-- Certifications -->
     <section class="card">
       <div class="card-head">
-        <h2 class="card-title">Certifications</h2>
+        <h2 class="card-title">Certifications (optional)</h2>
         <button type="button" class="btn btn-secondary" (click)="addCertification()">+ Add</button>
       </div>
       <div formArrayName="certifications" class="chip-rows">
         @for (c of certifications.controls; track $index; let i = $index) {
           <div class="chip-row">
-            <input [formControlName]="i" placeholder="Name -- Issuer (Date)" />
+            <input [formControlName]="i" placeholder="Name – Issuer (Date)" />
             @if (certifications.length > 1) {
-              <button type="button" class="btn btn-sm btn-danger" (click)="removeCertification(i)">
-                ×
-              </button>
+              <button type="button" class="btn btn-sm btn-danger" (click)="removeCertification(i)">×</button>
             }
           </div>
         }
       </div>
     </section>
 
-    <!-- Download actions -->
+    <!-- Download -->
     <section class="card actions-card">
       <h2 class="card-title">Download</h2>
+      @if (resumeForm.invalid && resumeForm.touched) {
+        <p class="validation-hint">Please fill required fields (name, phone, email).</p>
+      }
       <div class="actions">
-        <button type="button" class="btn btn-primary" (click)="downloadResume()">
+        <button type="button" class="btn btn-primary" (click)="downloadResume()" [disabled]="resumeForm.invalid">
           Download PDF
         </button>
-        <button type="button" class="btn btn-outline" (click)="downloadLatex()">
+        <button type="button" class="btn btn-outline" (click)="downloadLatex()" [disabled]="resumeForm.invalid">
           Download LaTeX (.tex)
         </button>
       </div>

@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Optional
 import re
 
 import fitz  # PyMuPDF
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -32,12 +32,19 @@ class Education(BaseModel):
     cgpa: str = ""
 
 
+class ExperienceSubRole(BaseModel):
+    title: str = ""
+    duration: str = ""
+    details: List[str] = []
+
+
 class Experience(BaseModel):
     title: str = ""
     company: str = ""
     location: str = ""
     duration: str = ""
     details: List[str] = []
+    sub_roles: Optional[List[ExperienceSubRole]] = None
 
 
 class Project(BaseModel):
@@ -45,6 +52,11 @@ class Project(BaseModel):
     description: List[str] = []
     year: str = ""
     tech: str = ""
+
+
+class SkillCategory(BaseModel):
+    category: str = ""
+    items: List[str] = []
 
 
 class ResumeData(BaseModel):
@@ -58,6 +70,7 @@ class ResumeData(BaseModel):
     projects: List[Project]
     skills: List[str]
     certifications: List[str]
+    skill_categories: Optional[List[SkillCategory]] = None
 
 
 BULLET_PREFIXES = ("- ", "•", "–", "* ", "â€¢", "â€“")
@@ -311,15 +324,4 @@ async def parse_resume(file: UploadFile = File(...)):
             certifications=certifications or [],
         )
     except Exception as e:
-        return ResumeData(
-            name=f"Error: {str(e)}",
-            phone="",
-            email="",
-            linkedin="",
-            github="",
-            education=[],
-            experience=[],
-            projects=[],
-            skills=[],
-            certifications=[],
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to parse PDF: {str(e)}")
